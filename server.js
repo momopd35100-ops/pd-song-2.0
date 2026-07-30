@@ -9,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// MODIFICA: Usa la cartella corrente per i file statici visto che sono alla radice
+// Assicuratevi che la cartella 'uploads' esista
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
@@ -27,11 +27,13 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 app.use(express.static(__dirname));
+app.use('/uploads', express.static(uploadDir));
 app.use(express.json());
 
 let queue = [];
 let currentSong = null;
 
+// Endpoint per caricare le canzoni
 app.post('/upload', upload.array('songs'), (req, res) => {
     try {
         if (!req.files || req.files.length === 0) {
@@ -40,28 +42,31 @@ app.post('/upload', upload.array('songs'), (req, res) => {
 
         const newSongs = req.files.map(file => ({
             id: Date.now() + Math.random().toString(36).substring(2, 9),
-            title: file.originalname,
+            name: file.originalname,
             url: `/uploads/${file.filename}`
         }));
 
+        // Aggiungiamo alla coda globale
         queue.push(...newSongs);
-        io.emit('updateQueue', { queue, currentSong });
+        
+        // Se non c'è una canzone in riproduzione, facciamo partire la prima
+        if (!currentSong && queue.length > 0) {
+            currentSong = queue.shift();
+            currentSong.isPlaying = true;
+            currentSong.currentTime = 0;
+        }
 
+        io.emit('updateState', { queue, currentSong });
         res.json({ success: true, added: newSongs });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Errore durante il caricamento del file.' });
+        res.status(500).json({ error: 'Errore durante il caricamento.' });
     }
 });
 
 io.on('connection', (socket) => {
-    socket.emit('updateQueue', { queue, currentSong });
-
-    socket.emit('sync', {
-        currentSong,
-        currentTime: currentSong ? currentSong.currentTime : 0,
-        isPlaying: currentSong ? currentSong.isPlaying : false
-    });
+    // Invia lo stato attuale appena un utente si collega
+    socket.emit('updateState', { queue, currentSong });
 
     socket.on('playSong', (songId) => {
         const index = queue.findIndex(s => s.id === songId);
@@ -69,34 +74,35 @@ io.on('connection', (socket) => {
             currentSong = queue.splice(index, 1)[0];
             currentSong.isPlaying = true;
             currentSong.currentTime = 0;
-            io.emit('updateQueue', { queue, currentSong });
-            io.emit('play', currentSong);
+            io.emit('updateState', { queue, currentSong });
         }
     });
 
     socket.on('removeSong', (songId) => {
         queue = queue.filter(s => s.id !== songId);
-        io.emit('updateQueue', { queue, currentSong });
+        if (currentSong && currentSong.id === songId) {
+            if (queue.length > 0) {
+                currentSong = queue.shift();
+                currentSong.isPlaying = true;
+                currentSong.currentTime = 0;
+            } else {
+                currentSong = null;
+            }
+        }
+        io.emit('updateState', { queue, currentSong });
     });
 
     socket.on('pause', () => {
         if (currentSong) {
             currentSong.isPlaying = false;
-            io.emit('pause');
+            io.emit('updateState', { queue, currentSong });
         }
     });
 
     socket.on('resume', () => {
         if (currentSong) {
             currentSong.isPlaying = true;
-            io.emit('resume');
-        }
-    });
-
-    socket.on('seek', (time) => {
-        if (currentSong) {
-            currentSong.currentTime = time;
-            io.emit('seek', time);
+            io.emit('updateState', { queue, currentSong });
         }
     });
 
@@ -105,17 +111,20 @@ io.on('connection', (socket) => {
             currentSong = queue.shift();
             currentSong.isPlaying = true;
             currentSong.currentTime = 0;
-            io.emit('updateQueue', { queue, currentSong });
-            io.emit('play', currentSong);
         } else {
             currentSong = null;
-            io.emit('updateQueue', { queue, currentSong });
-            io.emit('stop');
         }
+        io.emit('updateState', { queue, currentSong });
+    });
+
+    socket.on('clearQueue', () => {
+        queue = [];
+        currentSong = null;
+        io.emit('updateState', { queue, currentSong });
     });
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Server PD-SONG2.0 attivo sulla porta ${PORT}`);
+    console.log(`Server attivo sulla porta ${PORT}`);
 });
