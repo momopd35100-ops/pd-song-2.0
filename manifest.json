@@ -1,0 +1,15 @@
+{
+  "name": "PD-SONG2.0",
+  "short_name": "PD-SONG",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#1db954",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/color/512/spotify.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

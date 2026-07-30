@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PD-SONG2.0</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #121212; color: #fff; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: #181818; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        h1 { text-align: center; color: #1db954; }
+        .upload-section { border: 2px dashed #1db954; padding: 30px; text-align: center; border-radius: 8px; cursor: pointer; background: #222; margin-bottom: 20px; }
+        .upload-section:hover { background: #2a2a2a; }
+        input[type="file"] { display: none; }
+        .upload-btn { color: #1db954; font-weight: bold; cursor: pointer; text-decoration: underline; }
+        ul { list-style: none; padding: 0; }
+        li { background: #282828; margin-bottom: 10px; padding: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+        li.active { border-left: 4px solid #1db954; background: #333; }
+        button { background: #1db954; border: none; color: white; padding: 6px 12px; border-radius: 3px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #1aa34a; }
+        .controls { display: flex; gap: 10px; margin-top: 10px; justify-content: center; }
+        .library-header, .queue-header { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+        #clearLibraryBtn { background: #e74c3c; }
+        #clearLibraryBtn:hover { background: #c0392b; }
+        #clearQueueBtn { background: #e74c3c; }
+        #clearQueueBtn:hover { background: #c0392b; }
+        .delete-btn { background: #e74c3c; padding: 4px 8px; font-size: 12px; }
+        .delete-btn:hover { background: #c0392b; }
+        .player-section { background: #222; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; }
+        audio { width: 100%; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🎵 PD-SONG2.0</h1>
+        
+        <!-- Caricamento file -->
+        <div class="upload-section" id="dropZone" onclick="document.getElementById('audioFile').click()">
+            <span class="upload-btn">Seleziona MP3 / MP4</span>
+            <input type="file" id="audioFile" accept=".mp3,.mp4" multiple>
+            <p style="margin: 10px 0 0 0; color: #aaa;">Oppure trascina i file qui</p>
+        </div>
+
+        <!-- Player e Tasti -->
+        <div class="player-section">
+            <audio id="audioPlayer" controls style="display: none;"></audio>
+            <div id="nowPlaying" style="margin-bottom: 10px;">In riproduzione: Nessuna canzone</div>
+           
+            <div class="controls">
+                <button id="playPauseBtn">Play</button>
+                <button id="skipBtn">Skippa ⏭️</button>
+                <button id="stopBtn">Stop</button>
+            </div>
+        </div>
+
+        <!-- Libreria -->
+        <div class="library-section">
+            <div class="library-header">
+                <h2>Libreria</h2>
+                <button id="clearLibraryBtn">Svuota Libreria 🔒</button>
+            </div>
+            <ul id="libraryList"></ul>
+        </div>
+
+        <!-- Coda di riproduzione -->
+        <div class="queue-section">
+            <div class="queue-header">
+                <h2>Coda di Riproduzione</h2>
+                <button id="clearQueueBtn">Cancella Coda</button>
+            </div>
+            <ul id="queueList"></ul>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

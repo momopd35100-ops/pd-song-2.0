@@ -1,0 +1,189 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #121212;
+    color: #ffffff;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    box-sizing: border-box;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.bg-watermark {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 15vw;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.03);
+    z-index: 0;
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none;
+}
+
+.container {
+    width: 100%;
+    max-width: 500px;
+    background: rgba(30, 30, 30, 0.95);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    position: relative;
+    z-index: 1;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+h1, h2 {
+    text-align: center;
+    color: #1db954;
+}
+
+.upload-section {
+    text-align: center;
+    margin-bottom: 20px;
+    border: 2px dashed #444;
+    padding: 15px;
+    border-radius: 8px;
+    background: #222;
+}
+
+.drop-text {
+    margin: 8px 0 0 0;
+    font-size: 0.8em;
+    color: #888;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.upload-btn {
+    background-color: #1db954;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    display: inline-block;
+    transition: background 0.3s;
+}
+
+.upload-btn:hover {
+    background-color: #1ed760;
+}
+
+.player-section {
+    background: #282828;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#nowPlaying {
+    margin-bottom: 10px;
+    font-size: 0.95em;
+    color: #b3b3b3;
+}
+
+.controls button, .queue-header button, .library-header button {
+    background-color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    margin: 0 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.controls button:hover, .queue-header button:hover, .library-header button:hover {
+    background-color: #d3d3d3;
+}
+
+.library-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.library-section h2, .queue-section h2 {
+    font-size: 1.1em;
+    text-align: left;
+    margin: 0;
+}
+
+#clearLibraryBtn {
+    background-color: #e91429;
+    color: white;
+    font-size: 0.75em;
+    padding: 4px 8px;
+}
+
+#clearLibraryBtn:hover {
+    background-color: #f51b31;
+}
+
+#clearQueueBtn {
+    background-color: #e91429;
+    color: white;
+    font-size: 0.8em;
+}
+
+#clearQueueBtn:hover {
+    background-color: #f51b31;
+}
+
+#libraryList, #queueList {
+    list-style: none;
+    padding: 0;
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+#libraryList li, #queueList li {
+    background: #333333;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#libraryList li button, #queueList li button {
+    background-color: #1db954;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8em;
+}
+
+#queueList li button {
+    background-color: #e91429;
+}
+
+#libraryList li button:hover {
+    background-color: #1ed760;
+}
+
+#queueList li button:hover {
+    background-color: #f51b31;
+}
+
+#queueList li.active {
+    border-left: 4px solid #1db954;
+    background: #3e3e3e;
+}
