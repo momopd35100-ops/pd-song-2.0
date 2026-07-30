@@ -9,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// Assicuratevi che la cartella 'uploads' esista
+// Assicura che la cartella uploads esista all'avvio
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
@@ -17,13 +17,19 @@ if (!fs.existsSync(uploadDir)) {
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
         cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + '-' + file.originalname);
+        // Pulisce il nome del file da spazi o caratteri strani
+        const safeName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+        cb(null, uniqueSuffix + '-' + safeName);
     }
 });
+
 const upload = multer({ storage: storage });
 
 app.use(express.static(__dirname));
@@ -33,7 +39,6 @@ app.use(express.json());
 let queue = [];
 let currentSong = null;
 
-// Endpoint per caricare le canzoni
 app.post('/upload', upload.array('songs'), (req, res) => {
     try {
         if (!req.files || req.files.length === 0) {
@@ -46,10 +51,8 @@ app.post('/upload', upload.array('songs'), (req, res) => {
             url: `/uploads/${file.filename}`
         }));
 
-        // Aggiungiamo alla coda globale
         queue.push(...newSongs);
-        
-        // Se non c'è una canzone in riproduzione, facciamo partire la prima
+
         if (!currentSong && queue.length > 0) {
             currentSong = queue.shift();
             currentSong.isPlaying = true;
@@ -59,13 +62,12 @@ app.post('/upload', upload.array('songs'), (req, res) => {
         io.emit('updateState', { queue, currentSong });
         res.json({ success: true, added: newSongs });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Errore durante il caricamento.' });
+        console.error("Errore upload backend:", err);
+        res.status(500).json({ error: 'Errore durante il salvataggio del file.' });
     }
 });
 
 io.on('connection', (socket) => {
-    // Invia lo stato attuale appena un utente si collega
     socket.emit('updateState', { queue, currentSong });
 
     socket.on('playSong', (songId) => {
