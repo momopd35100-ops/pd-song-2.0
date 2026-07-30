@@ -9,7 +9,8 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const uploadDir = path.join(__dirname, 'public', 'uploads');
+// MODIFICA: Usa la cartella corrente per i file statici visto che sono alla radice
+const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -25,7 +26,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname));
 app.use(express.json());
 
 let queue = [];
@@ -114,7 +115,6 @@ io.on('connection', (socket) => {
     });
 });
 
-// MODIFICA CHIAVE PER IL CLOUD: Usa la porta dinamica di Render o 3000 in locale
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Server PD-SONG2.0 attivo sulla porta ${PORT}`);
